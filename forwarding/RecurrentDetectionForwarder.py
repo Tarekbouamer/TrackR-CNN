@@ -42,6 +42,9 @@ class RecurrentDetectionForwarder(Forwarder):
       self._extraction_keys += (Extractions.RECURRENT_STATE,)
 
   def forward(self):
+    '''''
+    Forward video sequences and pass it to forward_video() below function
+    '''''
     video_ids = range(self.val_data.n_videos()) if len(self.video_ids) == 0 else self.video_ids
     for video_idx in video_ids:
       self.val_data.set_video_idx(video_idx)
@@ -67,21 +70,23 @@ class RecurrentDetectionForwarder(Forwarder):
         det_masks = extractions[Extractions.DET_MASKS][0][j]
         img_filename = extractions[DataKeys.IMAGE_FILENAMES][0][j].decode("utf-8")
         print(img_filename)
-        if self.export_for_kitti_semseg:
-          out_folder = "forwarded/" + self.config.string("model") + "/seg_data/"
-          _export_detections_kitti_format(out_folder, det_boxes, det_classes, det_masks, det_scores, t, tag)
-        if self.visualize_detections:
-          if DataKeys.RAW_IMAGES not in extractions:
-            print("Can't extract raw images for visualization, maybe images in batch have different size?", file=log.v5)
-            assert False
-          img = extractions[DataKeys.RAW_IMAGES][0][j]
-          if self.interactive_visualization:
-            out_filename = None
-          else:
-            out_folder = "forwarded/" + self.config.string("model") + "/vis/" + tag
-            tf.gfile.MakeDirs(out_folder)
-            out_filename = out_folder + "/%06d.jpg" % t
-          visualize_detections(det_boxes, det_classes, det_masks, det_scores, img, save_path=out_filename)
+        ## TT
+        #if self.export_for_kitti_semseg:
+        out_folder = "forwarded/" + self.config.string("model") + "/seg_data/"_export_detections_kitti_format(out_folder, det_boxes, det_classes, det_masks, det_scores, t, tag)
+
+        #if self.visualize_detections:
+        if DataKeys.RAW_IMAGES not in extractions:
+          print("Can't extract raw images for visualization, maybe images in batch have different size?", file=log.v5)
+          assert False
+        img = extractions[DataKeys.RAW_IMAGES][0][j]
+        if self.interactive_visualization:
+          out_filename = None
+        else:
+          out_folder = "forwarded/" + self.config.string("model") + "/vis/" + tag
+          tf.gfile.MakeDirs(out_folder)
+          out_filename = out_folder + "/%06d.jpg" % t
+        visualize_detections(det_boxes, det_classes, det_masks, det_scores, img, save_path=out_filename)
+        ## TT
 
   def _forward_timestep(self, recurrent_states):
     feed_dict = self.val_data.get_feed_dict_for_next_step()
